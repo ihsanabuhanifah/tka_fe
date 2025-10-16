@@ -1,0 +1,71 @@
+/* styles/editor.css */
+.math-formula {
+  display: inline-block;
+  margin: 0 2px;
+  vertical-align: middle;
+}
+
+.math-formula.display-mode {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+  width: 100%;
+}
+
+.math-formula.inline-mode {
+  display: inline;
+}
+
+/* Style untuk toolbar formula */
+.ql-toolbar .ql-formula::before {
+  content: "Σ";
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* Style untuk KaTeX */
+.katex {
+  font-size: 1.1em;
+}
+
+.katex-display {
+  margin: 1em 0;
+}
+
+.katex-display > .katex {
+  text-align: center;
+}
+
+const renderMath = useCallback(
+    debounce(() => {
+      const editor = reactQuillRef.current.getEditor();
+      const editorContent = editor.root.innerHTML;
+
+      // Render KaTeX math
+      // katex.render(editorContent, editor.root, {
+      //   throwOnError: fals
+      // });
+
+      const latexRegex = /\$(.*?)\$/g;
+      const latexMatches = editorContent.match(latexRegex);
+
+      if (latexMatches) {
+        latexMatches.forEach((latex) => {
+          try {
+            const rendered = katex.renderToString(latex.replace(/\$/g, ""), {
+              throwOnError: false,
+            });
+
+            // Replace LaTeX dengan versi yang dirender
+            editor.root.innerHTML = editor.root.innerHTML.replace(
+              latex,
+              rendered,
+            );
+          } catch (error) {
+            console.error("KaTeX render error:", error);
+          }
+        });
+      }
+    }, 500), // Delay 500ms to avoid rendering on every small change
+    [],
+  );

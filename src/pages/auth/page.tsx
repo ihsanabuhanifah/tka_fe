@@ -1,5 +1,6 @@
 
 
+import TextEditor from "@/components/TextEditor"
 import { LoginForm } from "./login-form"
 
 export default function LoginPage() {
@@ -12,7 +13,7 @@ export default function LoginPage() {
           </div>
           Acme Inc.
         </a> */}
-        <LoginForm />
+      <LoginForm/>
       </div>
     </div>
   )
