@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { ProfileResponse } from "./interface";
 
 const getProfile = (): Promise<ProfileResponse> => {
-  return axiosClient.get("auth/profile").then(n => n.data);
+  return axiosClient.get("auth/profile").then((n) => n.data);
 };
 
 export const useProfile = () => {
@@ -15,4 +15,11 @@ export const useProfile = () => {
   });
 
   return { data, isFetching, isLoading };
+};
+
+export const bankSoalService = {
+  create: async (data: any) => {
+    const res = await axiosClient.post("/bank-soal/create", data);
+    return res.data;
+  },
 };

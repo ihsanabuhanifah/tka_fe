@@ -89,7 +89,7 @@ const MathInlineNode = Node.create({
     return ReactNodeViewRenderer(MathInlineComponent);
   },
 
-  addCommands() : any {
+  addCommands(): any {
     return {
       addMathInline:
         (content: string) =>
@@ -161,7 +161,11 @@ const TiptapEditor: React.FC<Props> = ({ value, handleChange, error }) => {
 
     const reader = new FileReader();
     reader.onload = () => {
-      editor.chain().focus().setImage({ src: reader.result as string }).run();
+      editor
+        .chain()
+        .focus()
+        .setImage({ src: reader.result as string })
+        .run();
       debouncedUpdate(editor.getHTML());
     };
     reader.readAsDataURL(file);
@@ -235,7 +239,7 @@ const TiptapEditor: React.FC<Props> = ({ value, handleChange, error }) => {
         editor={editor}
         className="editor-box"
         style={{
-          fontSize : 14,
+          fontSize: 14,
           padding: 10,
           borderRadius: 6,
           backgroundColor: "white",
@@ -277,7 +281,7 @@ const TiptapEditor: React.FC<Props> = ({ value, handleChange, error }) => {
                 border: "1px solid #ccc",
                 borderRadius: 6,
                 padding: 8,
-               
+
                 fontFamily: "monospace",
               }}
             />
@@ -369,13 +373,7 @@ const TiptapEditor: React.FC<Props> = ({ value, handleChange, error }) => {
   );
 };
 
-const ToolbarButton = ({
-  label,
-  onClick,
-  active,
-  italic,
-  underline,
-}: any) => (
+const ToolbarButton = ({ label, onClick, active, italic, underline }: any) => (
   <button
     type="button"
     onClick={onClick}
