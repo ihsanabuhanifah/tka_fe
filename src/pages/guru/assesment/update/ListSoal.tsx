@@ -1,13 +1,39 @@
 "use client";
 
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Loader2, Eye } from "lucide-react"; // Only need Eye icon here
+import { useState } from "react";
 import { useAddSoaltoUjian, useListBankSoal } from "../service";
 import RenderMathHTML from "@/components/RenderMathHTML";
+import FilterSoal from "./FilterSoal";
 
+// 🆕 Import Modal Component
+import SoalPreviewModal from "./Preview";
+
+/* -----------------------------
+   Tipe Data Soal
+----------------------------- */
+interface SoalItem {
+  id: string;
+  materi: string;
+  point: number;
+  tipe: "PG" | "MCMA" | "MTF" | "ES"; // Updated Tipe
+  soal: string; // JSON string for question content and options
+  pembahasan: string;
+  tingkat_kesulitan: string;
+  is_public: number;
+  nama_guru: string | null;
+  tingkat_sekolah: string;
+  jawaban: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/* -----------------------------
+   Komponen utama
+----------------------------- */
 interface ListSoalProps {
   mapel_id?: string;
   soal?: string[];
@@ -16,44 +42,33 @@ interface ListSoalProps {
 
 export default function ListSoal({ mapel_id, soal, ujian_id }: ListSoalProps) {
   const {
-    data,
+    data: rawData,
     isFetching,
     isLoading,
-   
+    params,
+    setParams,
+    handleFilter,
+    handleClear,
   } = useListBankSoal(mapel_id as string);
 
   const mutate = useAddSoaltoUjian(ujian_id as string);
   const [selectedSoalIds, setSelectedSoalIds] = useState<string[]>([]);
-  const [selectAll, setSelectAll] = useState(false);
 
-  console.log("soal", soal);
+  // 🆕 State untuk Modal Preview
+  const [previewSoal, setPreviewSoal] = useState<SoalItem | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    if (data && selectAll) {
-      setSelectedSoalIds(data.map((item: any) => item.id));
-    }
-    if (!selectAll) {
-      setSelectedSoalIds([]);
-    }
-  }, [selectAll, data]);
+  // Filter out questions already in the exam
+  const data = (rawData as SoalItem[])?.filter(
+    (item: SoalItem) => !soal?.includes(item.id)
+  );
 
-  if (isLoading || isFetching) {
-    return (
-      <div className="flex justify-center items-center py-20 text-blue-500">
-        <Loader2 className="animate-spin mr-2" />
-        Memuat data soal...
-      </div>
-    );
-  }
+  // ubah filter state
+  const handleChange = (field: string, value: string) => {
+    setParams((prev: any) => ({ ...prev, [field]: value }));
+  };
 
-  if (!data || data.length === 0) {
-    return (
-      <div className="text-center text-gray-500 py-20">
-        Belum ada soal untuk mapel ini.
-      </div>
-    );
-  }
-
+  // toggle pilih
   const toggleSelect = (soalId: string) => {
     setSelectedSoalIds((prev) =>
       prev.includes(soalId)
@@ -62,12 +77,18 @@ export default function ListSoal({ mapel_id, soal, ujian_id }: ListSoalProps) {
     );
   };
 
+  // 🆕 Buka Modal Preview
+  const handlePreview = (item: SoalItem) => {
+    setPreviewSoal(item);
+    setIsModalOpen(true);
+  };
+
+  // tambah ke ujian
   const handleTambahKeUjian = () => {
-    const selectedSoalData = data
-      .filter((item: any) => selectedSoalIds.includes(item.id))
-      .map((item: any) => ({
+    const selectedSoalData = rawData
+      ?.filter((item: SoalItem) => selectedSoalIds.includes(item.id))
+      .map((item: SoalItem) => ({
         ...item,
-        // soal: JSON.parse(item.soal) // pastikan soal jadi object lagi
       }));
 
     mutate.mutate(
@@ -78,119 +99,183 @@ export default function ListSoal({ mapel_id, soal, ujian_id }: ListSoalProps) {
       {
         onSuccess: () => {
           setSelectedSoalIds([]);
-          setSelectAll(false);
         },
       }
     );
-    // Tambahkan API call di sini
+  };
+
+  if (isLoading || isFetching) {
+    return (
+      <div className="flex justify-center items-center py-20 text-blue-500">
+        <Loader2 className="animate-spin mr-2" />
+        Memuat data soal...
+      </div>
+    );
+  }
+
+  const getTipeText = (tipe: string) => {
+    switch (tipe) {
+      case "PG":
+        return "Pilihan Ganda";
+      case "MCMA":
+        return "Multi Pilihan";
+      case "MTF":
+        return "Multi True/False";
+      case "ES":
+        return "Essay";
+      default:
+        return "Lainnya";
+    }
   };
 
   return (
-    <div>
+    <div className="h-full ">
       <div
-        style={{ height: "calc(100vh - 100px)" }}
-        className="container mx-auto py-6  max-w-4xl overflow-y-auto"
+        style={{ height: "calc(100vh - 80px)" }}
+        className="container mx-auto h-full   py-6 max-w-5xl overflow-y-auto no-scrollbar"
       >
-        <h1 className=" font-bold text-gray-800 mb-6 flex items-center gap-2">
-          📘 Daftar Bank Soal
-        </h1>
+        {/* 🔍 Filter Soal */}
+        <FilterSoal
+          filters={params}
+          onChange={handleChange}
+          onFilter={handleFilter}
+          onClear={handleClear}
+        />
+
         <Separator className="mb-4" />
 
-        <div></div>
-
-        {/* Pilih Semua */}
-        {/* <label className="flex items-center gap-2 mb-4 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={selectAll}
-            onChange={() => setSelectAll(!selectAll)}
-            className="w-4 h-4 accent-blue-600"
-          />
-          <span className="text-gray-700 font-medium">Pilih Semua</span>
-        </label> */}
-
+        {/* 📄 List Soal */}
         <div className="flex flex-col gap-4">
-          {data
-            .filter((item: any) => !soal?.includes(item.id))
-            .map((item: any) => {
+          {!data || data.length === 0 ? (
+            <div className="text-center text-gray-500 py-20">
+              Belum ada soal untuk filter ini.
+            </div>
+          ) : (
+            data.map((item: SoalItem) => {
               const soalData = JSON.parse(item.soal);
               const isSelected = selectedSoalIds.includes(item.id);
 
               return (
                 <Card
                   key={item.id}
-                  className={`transition-all duration-300 border rounded-xl shadow-md hover:shadow-xl cursor-pointer ${
+                  className={`transition-all duration-300 border rounded-xl shadow-md ${
                     isSelected
                       ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200 bg-white"
+                      : "border-gray-200 bg-white hover:bg-gray-50"
                   }`}
                 >
-                  <CardContent className="flex items-start gap-4">
+                  <CardContent className="flex items-start gap-4 p-6 transition-colors">
                     {/* Checkbox */}
                     <input
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => toggleSelect(item.id)}
-                      className="mt-2 w-5 h-5 accent-blue-600"
+                      className="mt-2 w-5 h-5 accent-blue-600 cursor-pointer"
+                      title="Pilih Soal"
                     />
 
-                    {/* Konten Soal */}
-                    <div className="flex-1">
-                      <CardTitle className="text-sm">
-                        <RenderMathHTML html={soalData.pertanyaan} />
-                      </CardTitle>
+                    {/* Konten utama */}
+                    <div className="flex-1 space-y-3">
+                      {/* Header info */}
+                      <div className="flex flex-wrap items-center gap-x-6 text-sm text-gray-600">
+                        <div>
+                          Kesulitan:{" "}
+                          <span className="text-gray-800 font-medium">
+                            {item.tingkat_kesulitan}
+                          </span>
+                        </div>
+                        <div>
+                          Sekolah:{" "}
+                          <span className="text-gray-800 font-medium uppercase">
+                            {item.tingkat_sekolah}
+                          </span>
+                        </div>
+                        <div>
+                          Tipe:{" "}
+                          <span className="text-gray-800 font-medium">
+                            {getTipeText(item.tipe)}
+                          </span>
+                        </div>
+                        <div>
+                          Poin:{" "}
+                          <span className="text-gray-800 font-medium">
+                            {item.point}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-gray-600">
+                        Materi:{" "}
+                        <span className="text-gray-800 font-medium">
+                          {item.materi}
+                        </span>
+                      </div>
 
-                      {/* <div className="flex flex-wrap gap-2 mt-2">
-                      <Badge className="bg-blue-50 text-blue-600 py-1 px-2 rounded-full">
-                        {item.mapel?.nama_mapel}
-                      </Badge>
-                      <Badge className="bg-blue-50 text-blue-600 py-1 px-2 rounded-full">
-                        {item.tingkat_kesulitan}
-                      </Badge>
-                      <Badge className="bg-blue-50 text-blue-600 py-1 px-2 rounded-full">
-                        {item.tingkat_sekolah.toUpperCase()}
-                      </Badge>
-                    </div> */}
+                      {/* Pertanyaan */}
+                      <div className="text-gray-900 leading-relaxed text-sm border rounded-lg px-3 py-3 bg-gray-50 line-clamp-3">
+                        <RenderMathHTML html={soalData.pertanyaan} />
+                      </div>
+
+                      {/* Footer & Preview Button */}
+                      <div className="flex justify-between items-center pt-2">
+                        <div className="text-xs text-gray-500">
+                          Pembuat:{" "}
+                          <span className="font-medium text-gray-700">
+                            {item.nama_guru || "Ihsan Santana Wibawa"}
+                          </span>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handlePreview(item)}
+                          className="flex items-center gap-1 text-xs text-blue-600 border-blue-500 hover:bg-blue-50"
+                          title="Lihat Detail Soal"
+                        >
+                          <Eye className="h-4 w-4" />
+                          Lihat Detail
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
               );
-            })}
+            })
+          )}
         </div>
       </div>
-      <div
-        style={{
-          height: "100px",
-        }}
-        className="flex justify-between  mt-6 items-start"
-      >
-        <div className="flex gap-2">
+
+      {/* 📦 FOOTER - Pagination + Tombol Tambah */}
+
+      {/* 🆕 Soal Preview Modal */}
+      <SoalPreviewModal
+        soal={previewSoal}
+        isOpen={isModalOpen}
+        onOpenChange={setIsModalOpen}
+      />
+      <div className="h-[80px] relative">
+        <div className="absolute bottom-0 left-0 right-0   p-4 shadow-lg flex justify-between items-center z-10">
+          <div className="flex gap-2">
+            <Button variant="outline" disabled>
+              ← Sebelumnya
+            </Button>
+            <Button variant="outline" disabled>
+              Selanjutnya →
+            </Button>
+          </div>
+
           <Button
             type="button"
-            variant="outline"
-            // disabled={params.page === 1}
-            // onClick={() => handlePage(params.page - 1)}
+            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 font-semibold transition duration-200"
+            onClick={handleTambahKeUjian}
+            disabled={selectedSoalIds.length === 0 || mutate.isPending}
           >
-            ←
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            // disabled={params.page === data.totalPages}
-            // onClick={() => handlePage(params.page + 1)}
-          >
-            →
+            {mutate.isPending && (
+              <Loader2 className="animate-spin h-5 w-5 mr-2" />
+            )}
+            {mutate.isPending
+              ? "Memproses..."
+              : `Tambah ke Ujian (${selectedSoalIds.length})`}
           </Button>
         </div>
-
-        <Button
-          type="button"
-          className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
-          onClick={handleTambahKeUjian}
-          disabled={selectedSoalIds.length === 0}
-        >
-          Tambah ke Ujian ({selectedSoalIds.length})
-        </Button>
       </div>
     </div>
   );

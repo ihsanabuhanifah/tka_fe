@@ -16,6 +16,7 @@ export default function LayoutGuru() {
   }
   return (
     <SidebarProvider
+    className="overflow-hidden"
       style={
         {
           "--sidebar-width": "calc(var(--spacing) * 72)",
@@ -24,12 +25,12 @@ export default function LayoutGuru() {
       }
     >
       <AppSidebar variant="inset" user={data!} />
-      <SidebarInset>
-        <SiteHeader />
-        <div className="flex flex-1 flex-col overflow-hidden ">
+      <SidebarInset  className="overflow-hidden">
+        <SiteHeader  />
+        <div className="flex flex-1 flex-col overflow-hidden  ">
           <div className="@container/main flex flex-1 flex-col gap-2 overflow-hidden ">
-            <div className=" overflow-hidden flex px-0 lg:px-5 pt-5 flex-col gap-4 py-4 md:gap-6 bg-gray-50 md:py-6">
-              <Outlet />
+            <div className=" overflow-hidden flex px-0 lg:px-5 pt-5 flex-col gap-4  md:gap-6 bg-gray-50 ">
+              <Outlet /> 
             </div>
           </div>
         </div>

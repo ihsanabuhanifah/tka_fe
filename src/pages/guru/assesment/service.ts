@@ -89,7 +89,7 @@ export const useListBankSoal = (mapel_id: string) => {
       bankSoalService.list({
         ...filterParams,
       }),
-    queryKey: ["/bank-soal/list/ujian"],
+    queryKey: ["/bank-soal/list/ujian", filterParams],
 
     select: (res) => res.data,
     // staleTime: 60 * 1000 * 60 * 24,
