@@ -7,6 +7,7 @@ import NotFoundPage from "./pages/notfound/page";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import Assesment from "./pages/guru/assesment/page";
+import UpdateAssesmentPage from "./pages/guru/assesment/update/page";
 
 
 const queryClient = new QueryClient();
@@ -20,7 +21,8 @@ function App() {
         <Route path="/guru" element={<LayoutGuru />}>
           <Route index element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="create-exam" element={<Assesment />} />
+          <Route path="assesment" element={<Assesment />} />
+           <Route path="assesment/:id" element={<UpdateAssesmentPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

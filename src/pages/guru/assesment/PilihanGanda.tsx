@@ -1,57 +1,107 @@
+"use client";
 
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import TextEditor from "@/components/TextEditor"
+import { Plus, Trash2 } from "lucide-react";
+import TextEditor from "@/components/TextEditor";
+import { generateId } from "./helper";
 
+export default function PilihanGanda({
+  values,
+  setValues,
+}: {
+  values: any;
+  setValues: React.Dispatch<React.SetStateAction<any>>;
+}) {
+  const pilihan = values.soal.pilihan;
+  const jawaban = values.jawaban;
 
-/* =====================
-   ✅ Komponen Pilihan Ganda
-===================== */
-export default function PilihanGanda({ i, formik }: any) {
-  const pilihan = formik.values.questions[i].soal.pilihan;
-  const err = (formik.errors.questions as any)?.[i]?.soal?.pilihan;
+  const addPilihan = () => {
+    const nextLabel = String.fromCharCode(65 + pilihan.length); // A,B,C,...
+    setValues((prev: { soal: { pilihan: any } }) => ({
+      ...prev,
+      soal: {
+        ...prev.soal,
+        pilihan: [
+          ...prev.soal.pilihan,
+          { id: generateId(), label: nextLabel, teks: "" },
+        ],
+      },
+    }));
+  };
+
+  const removePilihan = (idx: number) => {
+    const updated = pilihan.filter((_: any, i: number) => i !== idx);
+    const removedLabel = pilihan[idx].label;
+    setValues((prev: { soal: any; jawaban: any }) => ({
+      ...prev,
+      soal: { ...prev.soal, pilihan: updated },
+      jawaban: prev.jawaban === removedLabel ? "" : prev.jawaban,
+    }));
+  };
+
+  const handleTeksChange = (idx: number, val: string) => {
+    const updated = [...pilihan];
+    updated[idx].teks = val;
+    setValues((prev: any) => ({
+      ...prev,
+      soal: { ...prev.soal, pilihan: updated },
+    }));
+  };
 
   return (
-    <div className="mt-3">
+    <div className="space-y-4 mt-4">
       <Label>Pilihan Jawaban</Label>
       {pilihan.map((p: any, idx: number) => (
-        <div key={p.id} className="flex items-start gap-2 mt-1">
+        <div key={p.id} className="flex gap-2 items-start">
           <Badge
             onClick={() => {
-              formik.setFieldValue(`questions.jawaban`, p.label);
-               formik.setFieldValue(
-                  `questions.${i}.jawaban`,
-                  p.label
-                )
-              
+              setValues((prev: any) => ({
+                ...prev,
+                jawaban: p.label,
+              }));
             }}
-
-            variant={[`${formik.values.questions[i].jawaban}`].includes(p.label) ? "default" : "secondary"}
-             className="cursor-pointer"
+            className={`cursor-pointer transition-all duration-200 ${
+              jawaban.includes(p.label)
+                ? "bg-green-500 hover:bg-green-600 text-white shadow-md"
+                : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+            } text-base px-4 py-2 rounded-full`}
           >
-            {p.label} {console.log("formik.values.questions[i].jawaban", formik.values.questions[i].jawaban)}
+            {p.label}
           </Badge>
           <div className="flex-1">
             <TextEditor
               value={p.teks}
-              handleChange={(val: string) =>
-                formik.setFieldValue(
-                  `questions.${i}.soal.pilihan.${idx}.teks`,
-                  val
-                )
-              }
+              handleChange={(val) => handleTeksChange(idx, val)}
             />
-            <ErrorText error={err?.[idx]?.teks} />
           </div>
+          <Button
+            variant="destructive"
+            size="icon"
+            type="button"
+            onClick={() => removePilihan(idx)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
       ))}
+
+      <Button
+        className="w-full"
+        variant="ghost"
+        type="button"
+        onClick={addPilihan}
+      >
+        <Plus className="h-4 w-4 mr-2" /> Tambah Pilihan
+      </Button>
     </div>
   );
-}
-
-
-export function ErrorText({ error }: { error?: string }) {
-  if (!error) return null;
-  return <p className="text-red-500 text-xs mt-1">{error}</p>;
 }

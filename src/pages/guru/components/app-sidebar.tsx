@@ -54,7 +54,7 @@ const data = {
     },
     {
       title: "Assesment",
-      url: "/guru/create-exam",
+      url: "/guru/assesment",
       icon: IconListDetails,
     },
     {
