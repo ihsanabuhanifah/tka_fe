@@ -71,12 +71,16 @@ const TiptapEditor: React.FC<Props> = ({ value, handleChange, error }) => {
     ],
     content: value || "",
     onUpdate: ({ editor }) => debouncedUpdate(editor.getHTML()),
-    openMathModal: (node: any, updateAttributes: any, content: string) => {
+  });
+
+  useEffect(() => {
+    if (!editor) return;
+    (editor as any).options.openMathModal = (node: any, updateAttributes: any, content: string) => {
       setEditingNode({ node, updateAttributes });
       setMathContent(content);
       setMathModal(true);
-    },
-  }) ;
+    };
+  }, [editor]);
 
   useEffect(() => { if (!editor) return; const current = editor.getHTML(); if (value !== current) editor.commands.setContent(value || ""); }, [value, editor]);
 

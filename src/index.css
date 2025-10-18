@@ -144,3 +144,18 @@
   transform: translateY(-2px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
+
+
+
+
+
+div::-webkit-scrollbar,
+section::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, dan Edge */
+}
+
+div,
+section {
+  -ms-overflow-style: none;  /* Internet Explorer dan Edge lama */
+  scrollbar-width: none;     /* Firefox */
+}

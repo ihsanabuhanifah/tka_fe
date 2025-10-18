@@ -1,14 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAddSoaltoUjian, useListBankSoal } from "../service";
 import RenderMathHTML from "@/components/RenderMathHTML";
-import { set } from "lodash";
 
 interface ListSoalProps {
   mapel_id?: string;
@@ -17,10 +15,12 @@ interface ListSoalProps {
 }
 
 export default function ListSoal({ mapel_id, soal, ujian_id }: ListSoalProps) {
-  const { data, isFetching, isLoading, params, handlePage } = useListBankSoal(
-    mapel_id as string,
-    soal as string[]
-  );
+  const {
+    data,
+    isFetching,
+    isLoading,
+   
+  } = useListBankSoal(mapel_id as string);
 
   const mutate = useAddSoaltoUjian(ujian_id as string);
   const [selectedSoalIds, setSelectedSoalIds] = useState<string[]>([]);
@@ -70,15 +70,18 @@ export default function ListSoal({ mapel_id, soal, ujian_id }: ListSoalProps) {
         // soal: JSON.parse(item.soal) // pastikan soal jadi object lagi
       }));
 
-      mutate.mutate({
-      soal: [...((soal as string[]) || []), ...selectedSoalIds],
-      soals: selectedSoalData,
-    } as any , {
-      onSuccess : () => {
-        setSelectedSoalIds([]);
-        setSelectAll(false);
+    mutate.mutate(
+      {
+        soal: [...((soal as string[]) || []), ...selectedSoalIds],
+        soals: selectedSoalData,
+      } as any,
+      {
+        onSuccess: () => {
+          setSelectedSoalIds([]);
+          setSelectAll(false);
+        },
       }
-    });
+    );
     // Tambahkan API call di sini
   };
 
@@ -92,6 +95,8 @@ export default function ListSoal({ mapel_id, soal, ujian_id }: ListSoalProps) {
           📘 Daftar Bank Soal
         </h1>
         <Separator className="mb-4" />
+
+        <div></div>
 
         {/* Pilih Semua */}
         {/* <label className="flex items-center gap-2 mb-4 cursor-pointer">
@@ -161,7 +166,7 @@ export default function ListSoal({ mapel_id, soal, ujian_id }: ListSoalProps) {
       >
         <div className="flex gap-2">
           <Button
-          type="button"
+            type="button"
             variant="outline"
             // disabled={params.page === 1}
             // onClick={() => handlePage(params.page - 1)}
@@ -169,7 +174,7 @@ export default function ListSoal({ mapel_id, soal, ujian_id }: ListSoalProps) {
             ←
           </Button>
           <Button
-           type="button"
+            type="button"
             variant="outline"
             // disabled={params.page === data.totalPages}
             // onClick={() => handlePage(params.page + 1)}
@@ -179,7 +184,7 @@ export default function ListSoal({ mapel_id, soal, ujian_id }: ListSoalProps) {
         </div>
 
         <Button
-         type="button"
+          type="button"
           className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
           onClick={handleTambahKeUjian}
           disabled={selectedSoalIds.length === 0}

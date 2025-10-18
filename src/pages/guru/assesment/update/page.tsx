@@ -1,12 +1,7 @@
 "use client";
 
 import { useParams } from "react-router";
-import {
-  bankSoalService,
-  ujianService,
-  useDeleteSoalFromUjian,
-  useDetailUjian,
-} from "../service";
+import { useDeleteSoalFromUjian, useDetailUjian } from "../service";
 import {
   Card,
   CardHeader,
@@ -297,8 +292,7 @@ export default function UpdateAssesmentPage() {
                         <div className="h-full left-0 top-0 bottom-0 rounded-tl-lg rounded-bl-lg absolute w-[30px] bg-blue-500"></div>
                       )}{" "}
                       <QuestionBuilderSingle
-
-    containerRef={containerRef}
+                        containerRef={containerRef}
                         mapel_id={formik.values.mapel_id}
                         banksoal={formik.values.soal || []}
                         ujian_id={formik.values.id}

@@ -13,7 +13,6 @@ import { useCreateBankSoal, useUpdateBankSoal } from "./service";
 import QuestionMetaFields from "./QuestionMetaField";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import RenderMathHTML from "@/components/RenderMathHTML";
 
 /* =====================
    ✅ Type Definition

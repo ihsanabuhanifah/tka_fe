@@ -73,7 +73,7 @@ export const ujianService = {
   },
 };
 
-export const useListBankSoal = (mapel_id: string, soal: string[]) => {
+export const useListBankSoal = (mapel_id: string) => {
   const {
     params,
     setParams,
@@ -82,7 +82,7 @@ export const useListBankSoal = (mapel_id: string, soal: string[]) => {
     handlePageSize,
     handlePage,
     filterParams,
-  } = usePagination({ page: "1", page_size: "10", mapel_id, soal: soal });
+  } = usePagination({ page: "1", page_size: "10", mapel_id, tingkat_kesulitan : "", tingkat_sekolah : "", is_me : "false", tipe : "" });
 
   const { data, isFetching, isLoading } = useQuery({
     queryFn: () =>

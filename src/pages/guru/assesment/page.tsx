@@ -14,28 +14,15 @@ import {
 import { Badge } from "@/components/ui/badge";
 import AssessmentBuilderModal from "./AssesmentCreate";
 import { useListUjian } from "./service";
-import {
-  Loader2,
-  CalendarDays,
-  FileText,
-  Edit3,
- 
-} from "lucide-react";
+import { Loader2, CalendarDays, FileText, Edit3 } from "lucide-react";
 import { useNavigate } from "react-router";
 
 // ✅ Gambar berdasarkan mata pelajaran
 
-
 export default function AssessmentBuilder() {
   const [open, setOpen] = React.useState(false);
-    const navigate = useNavigate();
-  const {
-    data,
-    isFetching,
-    isLoading,
-    params,
-    handlePage,
-  } = useListUjian();
+  const navigate = useNavigate();
+  const { data, isFetching, isLoading, params } = useListUjian();
 
   console.log("data ujian:", data);
 
@@ -58,11 +45,6 @@ export default function AssessmentBuilder() {
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {data?.map((ujian: any) => {
-              const mapelKey = ujian.mapel_nama
-                ? ujian.mapel_nama.toLowerCase().replace(/\s+/g, "_")
-                : "default";
-            
-
               return (
                 <Card
                   key={ujian.id}
@@ -88,9 +70,7 @@ export default function AssessmentBuilder() {
                         {ujian.nama_ujian}
                       </span>
                       <Badge
-                        variant={
-                          ujian.is_published ? "default" : "secondary"
-                        }
+                        variant={ujian.is_published ? "default" : "secondary"}
                       >
                         {ujian.is_published ? "Published" : "Draft"}
                       </Badge>
@@ -117,24 +97,19 @@ export default function AssessmentBuilder() {
                     </div>
 
                     {/* Informasi tambahan */}
-                   
 
-                  
                     <p className="text-gray-500 text-sm">
                       Dibuat oleh <strong>{ujian.user_name}</strong>
                     </p>
                   </CardContent>
 
                   <CardFooter className="flex justify-between">
-                  
                     <Button
                       size="sm"
                       className="bg-blue-400"
                       onClick={() => {
                         navigate(`${ujian.id}`);
-                      }
-                        
-                      }
+                      }}
                     >
                       <Edit3 className="w-4 h-4 mr-2" /> Edit
                     </Button>
